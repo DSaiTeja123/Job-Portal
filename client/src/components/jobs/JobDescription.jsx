@@ -13,34 +13,44 @@ import { toast } from "sonner";
 function JobDescription() {
   const { singleJob } = useSelector((store) => store.job);
   const { user } = useSelector((store) => store.auth);
-  const isInitiallyApplied =
-    singleJob?.applicants?.some((applicant) => applicant.user === user?._id) ||
-    false;
-  const [isApplied, setIsApplied] = useState(isInitiallyApplied);
 
   const params = useParams();
   const jobId = params.id;
   const dispatch = useDispatch();
 
+  const [isApplied, setIsApplied] = useState(false);
+
   const applyJobHandler = async () => {
+    console.log("Clicked Apply Button");
+    if (!user?.token) {
+      toast.error("You must be logged in to apply.");
+      return;
+    }
+
     try {
       const res = await axios.get(
         `${APPLICATION_API_END_POINT}/apply/${jobId}`,
-        { jobId },
-        { withCredentials: true }
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+          withCredentials: true,
+        }
       );
+
+      console.log("Apply API response:", res.data);
 
       if (res?.data?.success) {
         setIsApplied(true);
         const updatedSingleJob = {
           ...singleJob,
-          applications: [...singleJob.applications, { applicant: user?._id }],
+          applications: [...singleJob.applications, { applicant: user._id }],
         };
         dispatch(setSingleJob(updatedSingleJob));
         toast.success(res.data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Apply job error:", error);
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
@@ -51,20 +61,33 @@ function JobDescription() {
         const res = await axios.get(`${JOB_API_END_POINT}/get/${jobId}`, {
           withCredentials: true,
         });
+
         if (res.data.success) {
           dispatch(setSingleJob(res.data.job));
-          setIsApplied(
-            res.data.job.applications.some(
-              (application) => application.applicant === user?._id
-            )
-          );
         }
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching job:", error);
       }
     };
-    fetchSingleJob();
-  }, [jobId, dispatch, user?._id]);
+
+    if (jobId) {
+      fetchSingleJob();
+    }
+  }, [jobId, dispatch]);
+
+  useEffect(() => {
+    const hasApplied =
+      singleJob?.applications?.some(
+        (application) =>
+          application.applicant === user?._id || application.user === user?._id
+      ) || false;
+
+    console.log("User ID:", user?._id);
+    console.log("Applications:", singleJob?.applications);
+    console.log("Has Applied:", hasApplied);
+
+    setIsApplied(hasApplied);
+  }, [singleJob, user?._id]);
 
   return (
     <div className="max-w-7xl mx-auto my-10 p-8 bg-white rounded-xl shadow-lg">
@@ -131,7 +154,7 @@ function JobDescription() {
         <div className="text-lg font-medium text-gray-700">
           <span className="font-bold">Posted Date: </span>
           <span className="text-gray-500">
-            {singleJob?.createdAt.split("T")[0]}
+            {singleJob?.createdAt?.split("T")[0]}
           </span>
         </div>
       </div>

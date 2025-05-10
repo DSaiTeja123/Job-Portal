@@ -21,7 +21,11 @@ import "./App.css";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: (
+      <ProtectRoutes>
+        <Home />
+      </ProtectRoutes>
+    ),
   },
   {
     path: "/login",
@@ -33,7 +37,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/jobs",
-    element: <Jobs />,
+    element: (
+      <ProtectRoutes>
+        <Jobs />
+      </ProtectRoutes>
+    ),
   },
   {
     path: "/description/:id",

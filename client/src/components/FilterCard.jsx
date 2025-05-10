@@ -35,12 +35,11 @@ const FilterCard = () => {
   };
 
   useEffect(() => {
-    // Combine all selected filters into a single query
     const query = Object.values(selectedFilters)
       .filter((val) => val !== "")
       .join(", ");
 
-    dispatch(setSearchedQuery(query)); // Dispatch the combined query
+    dispatch(setSearchedQuery(query));
   }, [selectedFilters, dispatch]);
 
   return (

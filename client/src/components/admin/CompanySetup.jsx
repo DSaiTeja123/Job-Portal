@@ -19,6 +19,7 @@ function CompanySetup() {
     location: "",
     file: null,
   });
+  const { user } = useSelector((store) => store.auth);
   const { singleCompany } = useSelector((store) => store.company);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ function CompanySetup() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${user?.token}`,
           },
           withCredentials: true,
         }

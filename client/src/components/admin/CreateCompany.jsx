@@ -12,6 +12,7 @@ function CreateCompany() {
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState("");
   const dispatch = useDispatch();
+  const { user } = useSelector((store) => store.auth);
 
   const registerNewCompany = async () => {
     try {
@@ -21,6 +22,7 @@ function CreateCompany() {
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${user?.token}`,
           },
           withCredentials: true,
         }

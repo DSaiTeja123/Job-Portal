@@ -21,13 +21,20 @@ const shortlistingStatus = ["Accepted", "Rejected"];
 
 function ApplicantsTable() {
   const { applicants } = useSelector((store) => store.application);
+  const { user } = useSelector((store) => store.auth);
 
   const statusHandler = async (id, status) => {
     try {
       axios.defaults.withCredentials = true;
       const res = await axios.post(
         `${APPLICATION_API_END_POINT}/status/${id}/update`,
-        { status }
+        { status },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+          withCredentials: true,
+        }
       );
       if (res.data.success) {
         toast.success(res.data.message);
